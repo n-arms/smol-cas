@@ -1,6 +1,6 @@
 pub type Name = String;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Operator {
     Add,
     Subtract,
@@ -9,7 +9,7 @@ pub enum Operator {
     Ln,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Expr {
     Variable(Name),
     Integer(i64),

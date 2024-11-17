@@ -7,7 +7,15 @@ use chumsky::{
     Parser,
 };
 
-pub fn expr_parser() -> impl Parser<char, Expr, Error = Simple<char>> {
+pub fn parse_expr_str(text: &str) -> Result<Expr, Vec<Simple<char>>> {
+    expr_parser().parse(text)
+}
+
+pub fn parse_expr(text: &[char]) -> Result<Expr, Vec<Simple<char>>> {
+    expr_parser().parse(text)
+}
+
+fn expr_parser() -> impl Parser<char, Expr, Error = Simple<char>> {
     recursive(ln_parser)
 }
 
@@ -61,7 +69,13 @@ fn ln_parser(
 fn terminal(
     expr: impl Parser<char, Expr, Error = Simple<char>> + Clone,
 ) -> impl Parser<char, Expr, Error = Simple<char>> {
-    integer_expr().or(variable_expr())
+    whitespace()
+        .ignore_then(
+            integer_expr()
+                .or(variable_expr())
+                .or(just('(').ignore_then(expr).then_ignore(just(')'))),
+        )
+        .then_ignore(whitespace())
 }
 
 fn integer_expr() -> impl Parser<char, Expr, Error = Simple<char>> {
