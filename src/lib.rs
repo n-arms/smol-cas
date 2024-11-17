@@ -14,6 +14,7 @@ macro_rules! rule {
 
 mod expr;
 mod parser;
+mod pattern_parser;
 mod solve;
 mod substitute;
 
