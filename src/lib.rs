@@ -4,6 +4,14 @@ macro_rules! test_parse {
     };
 }
 
+macro_rules! rule {
+    ($p:pat, $e:expr) => {
+        Rule {
+            rule: Box::new(|expr| if let $p = expr { Some($e) } else { None }),
+        }
+    };
+}
+
 mod expr;
 mod parser;
 mod solve;
@@ -13,6 +21,7 @@ mod substitute;
 mod tests {
     use expr::{Expr, Operator};
     use parser::parse_expr_str;
+    use solve::{solve, Rule};
 
     use super::*;
 
@@ -56,5 +65,48 @@ mod tests {
         test_parse!("105 * y", mul(int(105), var("y")));
         test_parse!("x / y", div(var("x"), var("y")));
         test_parse!("ln(x + 1)", ln(add(var("x"), int(1))));
+    }
+
+    #[test]
+    fn solve_() {
+        let eval_rules = vec![
+            rule!(Expr::Operation(Operator::Add, args), {
+                if let Expr::Integer(int1) = args[0] {
+                    if let Expr::Integer(int2) = args[1] {
+                        return Some(Expr::Integer(int1 + int2));
+                    }
+                }
+                return None;
+            }),
+            rule!(Expr::Operation(Operator::Subtract, args), {
+                if let Expr::Integer(int1) = args[0] {
+                    if let Expr::Integer(int2) = args[1] {
+                        return Some(Expr::Integer(int1 - int2));
+                    }
+                }
+                return None;
+            }),
+            rule!(Expr::Operation(Operator::Multiply, args), {
+                if let Expr::Integer(int1) = args[0] {
+                    if let Expr::Integer(int2) = args[1] {
+                        return Some(Expr::Integer(int1 * int2));
+                    }
+                }
+                return None;
+            }),
+        ];
+
+        // = -4
+        panic!(
+            "{:#?}",
+            solve(parse_expr_str("1 + 2").unwrap(), &eval_rules)
+        );
+        panic!(
+            "{:#?}",
+            solve(
+                parse_expr_str("(1 + 2) * (3 - 5 + 3) - 7").unwrap(),
+                &eval_rules
+            )
+        );
     }
 }
