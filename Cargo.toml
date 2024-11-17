@@ -1,0 +1,6 @@
+[package]
+name = "smol-cas"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
